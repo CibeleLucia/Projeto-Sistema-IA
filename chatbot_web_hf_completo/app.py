@@ -36,15 +36,15 @@ def chat():
 
     try:
         response_data = chatbot_pipeline(
-        user_message,
-        max_new_tokens=60, # Número máximo de tokens a serem gerados    
-        num_return_sequences=1, # Número de sequências a serem retornadas                              
-        do_sample=True, # Para amostragem em vez de busca
-        temperature=0.7, # Para controlar a aleatoriedade
-        repetition_penalty=1.2, # Para evitar repetições  
-        top_k=50, # Para limitar o número de palavras a considerar
-        top_p=0.95, # Para limitar a probabilidade cumulativa
-        pad_token_id=chatbot_pipeline.tokenizer.eos_token_id # Para evitar warnings com alguns modelos
+            user_message,
+            max_new_tokens=60, # Número máximo de tokens a serem gerados    
+            num_return_sequences=1, # Número de sequências a serem retornadas                              
+            do_sample=True, # Para amostragem em vez de busca
+            temperature=0.7, # Para controlar a aleatoriedade
+            repetition_penalty=1.2, # Para evitar repetições  
+            top_k=50, # Para limitar o número de palavras a considerar
+            top_p=0.95, # Para limitar a probabilidade cumulativa
+            pad_token_id=chatbot_pipeline.tokenizer.eos_token_id # Para evitar warnings com alguns modelos
         )    
         generated_text = response_data[0]['generated_text']
     
@@ -54,9 +54,12 @@ def chat():
             chatbot_response = generated_text.strip()
         if not chatbot_response:
             chatbot_response = "Não entendi bem. Pode reformular?"
+    except Exception as e:
+        logging.error(f"Erro ao gerar resposta: {e}")
+        return jsonify({"response": "Desculpe, ocorreu um erro ao processar sua mensagem."}), 500
 
-        logging.info(f"Resposta do modelo: '{response_data[0]['generated_text']}'")
-        return jsonify({"response": response_data[0]['generated_text']})
+    logging.info(f"Resposta do modelo: '{response_data[0]['generated_text']}'")
+    return jsonify({"response": response_data[0]['generated_text']})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')
